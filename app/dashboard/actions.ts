@@ -1,4 +1,5 @@
-"use server";
+import { error } from "./../../node_modules/effect/src/Brand";
+("use server");
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -36,7 +37,8 @@ export async function createProfile(
         description: r.data.description || null,
       },
     });
-  } catch {
+  } catch (error) {
+    console.error(error);
     return "Cette adresse est déjà prise.";
   }
   redirect("/dashboard");
