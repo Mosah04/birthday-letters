@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "Certaines lettres méritent d'attendre. Tes proches t'écrivent, tu les ouvres le jour de ton anniversaire.",
   openGraph: { siteName: "Birthday Letters", locale: "fr_FR", type: "website" },
 };
-export const viewport: Viewport = { themeColor: "#FAF6EF", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: [{ media: "(prefers-color-scheme: light)", color: "#FAF6EF" }, { media: "(prefers-color-scheme: dark)", color: "#12100E" }], width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -20,7 +20,7 @@ export default function Countdown({ to }: { to: string }) {
   return (
     <div className="flex justify-center gap-5 font-serif" role="timer" aria-label="Temps restant avant l'ouverture">
       {parts.map(([u, v]) => (
-        <div key={u} className="min-w-12"><div className="text-4xl tabular-nums">{String(v).padStart(2, "0")}</div><div className="text-xs text-[#6B6257]">{u}</div></div>
+        <div key={u} className="min-w-12"><div className="text-4xl tabular-nums">{String(v).padStart(2, "0")}</div><div className="text-xs text-muted">{u}</div></div>
       ))}
     </div>
   );
