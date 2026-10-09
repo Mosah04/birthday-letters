@@ -22,7 +22,8 @@ export async function POST(req: Request) {
     req.headers.get("x-forwarded-for") ?? "?",
     req.headers.get("user-agent") ?? "?",
   );
-  if (await tooMany(id))
+  const isDev = process.env.NODE_ENV !== "production";
+  if (!isDev && (await tooMany(id)))
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
 
   const profile = await prisma.birthdayProfile.findUnique({
@@ -44,3 +45,26 @@ export async function POST(req: Request) {
   });
   return NextResponse.json({ ok: true, unlockAt: profile.birthday });
 }
+
+export const dynamic = "force-dynamic";
+
+export async function GET() {
+  try {
+    const userCount = await prisma.user.count();
+    const profiles = await prisma.birthdayProfile.findMany({
+      select: { slug: true, displayName: true, birthday: true },
+    });
+    const letterCount = await prisma.letter.count();
+    return NextResponse.json({
+      ok: true,
+      users: userCount,
+      profiles: profiles.length,
+      letters: letterCount,
+      list: profiles,
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+  }
+}
+

@@ -1,75 +1,395 @@
 "use client";
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowLeft, CalendarDays, Check, Loader2, Send } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  Check,
+  Loader2,
+  Send,
+  Sparkles,
+  Lock,
+  Heart,
+  Palette,
+  Type,
+} from "lucide-react";
 import Envelope from "@/components/Envelope";
+import { sounds } from "@/lib/sound";
 
-type Step = "envelope" | "write" | "sending" | "sent";
-const LINES = "[background-image:repeating-linear-gradient(transparent,transparent_35px,var(--line)_35px,var(--line)_36px)]";
-const fmt = (d: Date) => d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+type Step = "envelope" | "write" | "sealing" | "sent";
 
-export default function LetterEditor({ slug, name, unlockAt }: { slug: string; name: string; unlockAt: string }) {
+const fmt = (d: Date) =>
+  d.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+type PaperTheme = "cream" | "rose" | "parchment" | "midnight";
+
+export default function LetterEditor({
+  slug,
+  name,
+  unlockAt,
+}: {
+  slug: string;
+  name: string;
+  unlockAt: string;
+}) {
   const reduce = useReducedMotion();
   const [step, setStep] = useState<Step>("envelope");
-  const [f, setF] = useState({ senderName: "", content: "", signature: "", showDate: true, website: "" });
+  const [paper, setPaper] = useState<PaperTheme>("cream");
+  const [fontStyle, setFontStyle] = useState<"hand" | "serif">("hand");
+  const [f, setF] = useState({
+    senderName: "",
+    content: "",
+    signature: "",
+    showDate: true,
+    website: "", // honeypot
+  });
   const [err, setErr] = useState<string | null>(null);
-  const set = (k: keyof typeof f, v: string | boolean) => setF((s) => ({ ...s, [k]: v }));
+
+  const set = (k: keyof typeof f, v: string | boolean) => {
+    setF((s) => ({ ...s, [k]: v }));
+  };
+
   const ok = f.senderName.trim() && f.content.trim();
 
   async function send() {
-    setErr(null); setStep("sending");
-    const res = await fetch("/api/letters", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ slug, ...f, signature: f.signature || undefined }) });
-    if (res.ok) return setStep("sent");
-    setErr(res.status === 429 ? "Vous avez déjà écrit plusieurs lettres. Réessayez dans un moment." : "Une erreur est survenue. Votre texte est conservé, réessayez.");
-    setStep("write");
+    setErr(null);
+    setStep("sealing");
+    sounds.waxCrack();
+
+    try {
+      const res = await fetch("/api/letters", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug,
+          ...f,
+          signature: f.signature || undefined,
+        }),
+      });
+
+      if (res.ok) {
+        setTimeout(() => {
+          sounds.chime();
+          setStep("sent");
+        }, 1200);
+        return;
+      }
+
+      setErr(
+        res.status === 429
+          ? "Vous avez déjà écrit plusieurs lettres. Réessayez dans un moment."
+          : "Une erreur est survenue lors du scellement. Votre texte est conservé."
+      );
+      setStep("write");
+    } catch {
+      setErr("Erreur de connexion. Vérifiez votre réseau.");
+      setStep("write");
+    }
   }
-  const fade = { initial: { opacity: 0, y: reduce ? 0 : 18 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: reduce ? 0 : -12 }, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const } };
+
+  const fade = {
+    initial: { opacity: 0, y: reduce ? 0 : 20 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: reduce ? 0 : -16 },
+    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
+  };
+
+  const getPaperBg = () => {
+    switch (paper) {
+      case "rose":
+        return "bg-[#fffaf8] border-[#f2ded9]";
+      case "parchment":
+        return "bg-[#fbf5e8] border-[#e8dbc0]";
+      case "midnight":
+        return "bg-[#181a24] text-[#edeef5] border-[#292d3f]";
+      default:
+        return "bg-card border-line";
+    }
+  };
 
   return (
-    <main className="flex min-h-dvh items-center justify-center px-4 py-8">
+    <main className="flex min-h-dvh items-center justify-center px-4 py-8 relative selection:bg-accent/20">
       <AnimatePresence mode="wait">
+        {/* STEP 1: PREVIEW / INTRO ENVELOPE */}
         {step === "envelope" && (
-          <motion.section key="env" {...fade} className="flex max-w-sm flex-col items-center text-center">
-            <Envelope className="float" />
-            <h1 className="mt-12 font-serif text-4xl leading-tight">Une lettre pour <em className="text-accent">{name}</em></h1>
-            <p className="mt-3 text-muted">Elle restera scellée jusqu'au {fmt(new Date(unlockAt))}.</p>
-            <button onClick={() => setStep("write")} className="mt-8 inline-flex h-14 items-center gap-2 rounded-full bg-ink px-8 text-paper shadow-lg transition active:scale-95">Commencer à écrire</button>
-          </motion.section>
-        )}
+          <motion.section
+            key="env"
+            {...fade}
+            className="flex max-w-md flex-col items-center text-center py-6"
+          >
+            <Envelope
+              className="float"
+              recipientName={name}
+              subtitle="Capsule d'anniversaire"
+            />
 
-        {(step === "write" || step === "sending") && (
-          <motion.section key="write" {...fade} className="relative w-full max-w-xl">
-            <button onClick={() => setStep("envelope")} className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink"><ArrowLeft size={16} />Retour</button>
-            <div className="rounded-2xl bg-card p-6 shadow-[0_30px_70px_-35px_rgba(0,0,0,.5)] ring-1 ring-line sm:p-10">
-              <p className="font-hand text-3xl text-muted">Cher·e {name},</p>
-              <label className="sr-only" htmlFor="content">Votre lettre</label>
-              <textarea id="content" autoFocus rows={9} maxLength={5000} value={f.content} onChange={(e) => set("content", e.target.value)} placeholder="Écrivez ce que vous avez sur le cœur…"
-                className={`mt-2 w-full resize-none bg-transparent font-hand text-2xl leading-9 caret-[var(--accent)] outline-none placeholder:text-muted/60 ${LINES}`} />
-              <input value={f.signature} onChange={(e) => set("signature", e.target.value)} maxLength={120} aria-label="Signature" placeholder="Avec tout mon amour,"
-                className="mt-4 w-full bg-transparent font-hand text-3xl text-accent outline-none placeholder:text-accent/50" />
-              <div className="mt-6 flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center">
-                <input value={f.senderName} onChange={(e) => set("senderName", e.target.value)} maxLength={60} required placeholder="Votre nom" aria-label="Votre nom"
-                  className="h-12 flex-1 rounded-xl border border-line bg-paper px-4 outline-none focus:border-accent" />
-                <button type="button" role="switch" aria-checked={f.showDate} onClick={() => set("showDate", !f.showDate)} className="flex items-center gap-3 text-sm text-muted">
-                  <span className={`relative h-6 w-10 rounded-full transition ${f.showDate ? "bg-accent" : "bg-line"}`}><span className={`absolute top-0.5 size-5 rounded-full bg-white transition-all ${f.showDate ? "left-[1.1rem]" : "left-0.5"}`} /></span>
-                  <CalendarDays size={16} />{f.showDate ? fmt(new Date()) : "Sans date"}
-                </button>
-              </div>
-              <input tabIndex={-1} autoComplete="off" aria-hidden value={f.website} onChange={(e) => set("website", e.target.value)} className="absolute left-[-9999px]" />
-              {err && <p role="alert" className="mt-4 text-sm text-red-600 dark:text-red-400">{err}</p>}
-            </div>
-            <button disabled={!ok || step === "sending"} onClick={send} className="mt-6 inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-ink text-paper shadow-lg transition active:scale-[.98] disabled:opacity-40">
-              {step === "sending" ? <><Loader2 size={18} className="animate-spin" />Mise sous enveloppe…</> : <><Send size={18} />Déposer la lettre</>}
+            <h1 className="mt-12 font-serif text-4xl sm:text-5xl leading-tight text-ink font-medium tracking-tight">
+              Une lettre scellée pour{" "}
+              <em className="text-accent italic font-normal">{name}</em>
+            </h1>
+
+            <p className="mt-4 text-sm sm:text-base text-muted max-w-sm">
+              Prends quelques instants pour lui écrire ce qui compte. Ta lettre sera scellée et personne ne pourra l&apos;ouvrir avant le{" "}
+              <strong className="text-ink font-semibold">{fmt(new Date(unlockAt))}</strong>.
+            </p>
+
+            <button
+              onClick={() => {
+                sounds.rustle();
+                setStep("write");
+              }}
+              className="mt-8 inline-flex h-14 items-center gap-2 rounded-full bg-ink px-8 text-paper text-sm sm:text-base font-medium shadow-xl transition hover:bg-accent active:scale-95"
+            >
+              <Sparkles size={16} />
+              <span>Prendre la plume</span>
             </button>
           </motion.section>
         )}
 
+        {/* STEP 2: FINE STATIONERY WRITING DESK */}
+        {(step === "write" || step === "sealing") && (
+          <motion.section
+            key="write"
+            {...fade}
+            className="relative w-full max-w-2xl py-4"
+          >
+            {/* Top Toolbar */}
+            <div className="mb-4 flex items-center justify-between">
+              <button
+                onClick={() => {
+                  sounds.click();
+                  setStep("envelope");
+                }}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-ink transition border border-line rounded-full px-3 py-1 bg-card/60"
+              >
+                <ArrowLeft size={14} />
+                <span>Retour</span>
+              </button>
+
+              {/* Stationery options */}
+              <div className="flex items-center gap-3">
+                {/* Paper Swatches */}
+                <div className="flex items-center gap-1 bg-card/70 border border-line rounded-full px-2 py-1 shadow-sm">
+                  <Palette size={12} className="text-muted mr-1" />
+                  {(["cream", "rose", "parchment", "midnight"] as PaperTheme[]).map(
+                    (p) => (
+                      <button
+                        key={p}
+                        onClick={() => {
+                          sounds.rustle();
+                          setPaper(p);
+                        }}
+                        title={`Papier ${p}`}
+                        className={`size-4 rounded-full border transition ${
+                          p === "cream"
+                            ? "bg-[#ffffff]"
+                            : p === "rose"
+                            ? "bg-[#ffdcd6]"
+                            : p === "parchment"
+                            ? "bg-[#f5e6cb]"
+                            : "bg-[#181a24]"
+                        } ${
+                          paper === p
+                            ? "ring-2 ring-accent scale-110"
+                            : "opacity-70 hover:opacity-100"
+                        }`}
+                      />
+                    )
+                  )}
+                </div>
+
+                {/* Font Toggle */}
+                <button
+                  onClick={() => {
+                    sounds.click();
+                    setFontStyle(fontStyle === "hand" ? "serif" : "hand");
+                  }}
+                  className="flex items-center gap-1 bg-card/70 border border-line rounded-full px-2.5 py-1 text-xs text-muted hover:text-ink shadow-sm"
+                >
+                  <Type size={12} />
+                  <span>{fontStyle === "hand" ? "Manuscrit" : "Sérif"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Parchment Letter Sheet */}
+            <div
+              className={`rounded-3xl p-6 sm:p-12 shadow-[0_30px_70px_-30px_rgba(0,0,0,0.18)] border transition-colors relative overflow-hidden ${getPaperBg()}`}
+            >
+              {/* Postal Watermark */}
+              <div className="absolute top-4 right-6 text-[10px] uppercase font-mono tracking-widest text-muted/40 pointer-events-none select-none">
+                Lettre Scellée · Minuit
+              </div>
+
+              {/* Greeting */}
+              <p
+                className={`text-2xl sm:text-3xl font-medium text-accent select-none ${
+                  fontStyle === "hand" ? "font-hand" : "font-serif italic"
+                }`}
+              >
+                Cher·e {name},
+              </p>
+
+              {/* Letter textarea with lined paper background */}
+              <label className="sr-only" htmlFor="letter-content">
+                Ta lettre pour {name}
+              </label>
+              <textarea
+                id="letter-content"
+                autoFocus
+                rows={9}
+                maxLength={5000}
+                value={f.content}
+                onChange={(e) => set("content", e.target.value)}
+                placeholder="Écris tout ce que tu n'as jamais pris le temps de dire. Tes souvenirs, tes vœux, un secret partagé..."
+                className={`mt-4 w-full resize-none bg-transparent text-xl sm:text-2xl leading-9 sm:leading-10 caret-accent outline-none placeholder:text-muted/50 paper-texture ${
+                  fontStyle === "hand" ? "font-hand" : "font-serif"
+                }`}
+              />
+
+              {/* Signature Input */}
+              <div className="mt-6 pt-4 border-t border-line/50">
+                <label className="sr-only" htmlFor="signature-input">
+                  Signature
+                </label>
+                <input
+                  id="signature-input"
+                  value={f.signature}
+                  onChange={(e) => set("signature", e.target.value)}
+                  maxLength={120}
+                  placeholder="Avec toute mon affection,"
+                  className={`w-full bg-transparent text-2xl sm:text-3xl text-accent outline-none placeholder:text-accent/40 ${
+                    fontStyle === "hand" ? "font-hand" : "font-serif italic"
+                  }`}
+                />
+              </div>
+
+              {/* Sender Details & Date Switch */}
+              <div className="mt-8 flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center">
+                <input
+                  value={f.senderName}
+                  onChange={(e) => set("senderName", e.target.value)}
+                  maxLength={60}
+                  required
+                  placeholder="Ton nom ou surnom (ex. Lucas)"
+                  className="h-12 flex-1 rounded-2xl border border-line bg-paper/70 px-4 text-sm font-medium outline-none focus:border-accent focus:bg-paper transition"
+                />
+
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={f.showDate}
+                  onClick={() => {
+                    sounds.click();
+                    set("showDate", !f.showDate);
+                  }}
+                  className="flex items-center gap-2.5 text-xs text-muted hover:text-ink transition px-3 py-2 rounded-xl bg-paper/40 border border-line"
+                >
+                  <span
+                    className={`relative h-5 w-9 rounded-full transition ${
+                      f.showDate ? "bg-accent" : "bg-line"
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 size-4 rounded-full bg-white transition-all shadow-sm ${
+                        f.showDate ? "left-[1.1rem]" : "left-0.5"
+                      }`}
+                    />
+                  </span>
+                  <CalendarDays size={14} />
+                  <span>{f.showDate ? fmt(new Date()) : "Sans date"}</span>
+                </button>
+              </div>
+
+              {/* Honeypot hidden input */}
+              <input
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden
+                value={f.website}
+                onChange={(e) => set("website", e.target.value)}
+                className="absolute left-[-9999px]"
+              />
+
+              {err && (
+                <div
+                  role="alert"
+                  className="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400"
+                >
+                  {err}
+                </div>
+              )}
+            </div>
+
+            {/* Submission Button */}
+            <button
+              disabled={!ok || step === "sealing"}
+              onClick={send}
+              className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-full bg-ink text-paper text-sm sm:text-base font-medium shadow-xl transition hover:bg-accent active:scale-98 disabled:opacity-40"
+            >
+              {step === "sealing" ? (
+                <>
+                  <Loader2 size={18} className="animate-spin text-accent" />
+                  <span>Pliage et scellement du sceau de cire...</span>
+                </>
+              ) : (
+                <>
+                  <Send size={18} />
+                  <span>Sceller et déposer la lettre</span>
+                </>
+              )}
+            </button>
+          </motion.section>
+        )}
+
+        {/* STEP 3: SUCCESS / SEALED CONFIRMATION */}
         {step === "sent" && (
-          <motion.section key="sent" {...fade} className="flex max-w-sm flex-col items-center text-center">
-            <motion.div initial={{ scale: 0.5, rotate: -10 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 180, damping: 14 }} className="grid size-20 place-items-center rounded-full bg-accent text-paper"><Check size={36} /></motion.div>
-            <h1 className="mt-8 font-serif text-4xl">Lettre déposée</h1>
-            <p className="mt-3 text-muted">Elle est dans la capsule. {name} ne pourra la lire que le {fmt(new Date(unlockAt))}.</p>
-            <a href={`/${slug}`} className="mt-8 text-accent underline underline-offset-4">Retour à la page de {name}</a>
+          <motion.section
+            key="sent"
+            {...fade}
+            className="flex max-w-md flex-col items-center text-center py-8"
+          >
+            <motion.div
+              initial={{ scale: 0.4, rotate: -15 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 180, damping: 14 }}
+              className="grid size-24 place-items-center rounded-full bg-gradient-to-br from-wax to-[#781f10] text-paper shadow-2xl wax-pulse"
+            >
+              <Check size={42} strokeWidth={2.5} />
+            </motion.div>
+
+            <span className="mt-8 text-xs font-semibold uppercase tracking-widest text-accent font-mono">
+              Scellée avec succès
+            </span>
+            <h1 className="mt-2 font-serif text-4xl sm:text-5xl text-ink font-medium">
+              Lettre déposée
+            </h1>
+            <p className="mt-4 text-sm sm:text-base text-muted max-w-sm">
+              Elle est désormais bien au chaud dans la capsule. {name} la découvrira avec émotion le{" "}
+              <strong className="text-ink font-semibold">{fmt(new Date(unlockAt))}</strong>.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 w-full max-w-xs">
+              <a
+                href={`/${slug}`}
+                onClick={() => sounds.click()}
+                className="flex h-12 items-center justify-center rounded-full bg-ink text-paper text-sm font-medium shadow transition hover:bg-accent active:scale-95"
+              >
+                Retourner sur la capsule de {name}
+              </a>
+
+              <a
+                href="/"
+                onClick={() => sounds.click()}
+                className="flex h-12 items-center justify-center rounded-full border border-line bg-card text-muted hover:text-ink text-sm font-medium transition"
+              >
+                Créer ma propre capsule
+              </a>
+            </div>
           </motion.section>
         )}
       </AnimatePresence>

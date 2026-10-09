@@ -3,62 +3,149 @@
 @theme inline {
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-serif: var(--font-fraunces), Georgia, serif;
-  --font-hand: var(--font-script), "Segoe Script", cursive;
+  --font-hand: var(--font-script), "Caveat", cursive;
   --color-paper: var(--paper);
   --color-card: var(--card);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-accent: var(--accent);
+  --color-wax: var(--wax);
+  --color-gold: var(--gold);
 }
 
 :root {
   color-scheme: light dark;
-  --paper: #faf6ef;
+  --paper: #faf7f2;
+  --paper-subtle: #f3ece2;
   --card: #ffffff;
-  --ink: #1c1917;
-  --muted: #78716c;
-  --line: rgba(28, 25, 23, 0.1);
-  --accent: #b5654f;
-  --glow: rgba(181, 101, 79, 0.14);
+  --ink: #1a1615;
+  --muted: #6e6761;
+  --line: rgba(26, 22, 21, 0.08);
+  --line-strong: rgba(26, 22, 21, 0.16);
+  --accent: #b85038;
+  --wax: #a83622;
+  --wax-glow: rgba(168, 54, 34, 0.28);
+  --gold: #c9933e;
+  --gold-glow: rgba(201, 147, 62, 0.25);
+  --glow: rgba(184, 80, 56, 0.12);
 }
+
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #12100e;
-    --card: #1c1917;
-    --ink: #f5efe6;
-    --muted: #a39a8f;
-    --line: rgba(245, 239, 230, 0.12);
-    --accent: #e3a58f;
-    --glow: rgba(227, 165, 143, 0.12);
+    --paper: #0f0d0c;
+    --paper-subtle: #171412;
+    --card: #181514;
+    --ink: #f7f3ed;
+    --muted: #9c938b;
+    --line: rgba(247, 243, 237, 0.1);
+    --line-strong: rgba(247, 243, 237, 0.2);
+    --accent: #e57d65;
+    --wax: #c74b32;
+    --wax-glow: rgba(199, 75, 50, 0.35);
+    --gold: #dfb26b;
+    --gold-glow: rgba(223, 178, 107, 0.3);
+    --glow: rgba(229, 125, 101, 0.1);
   }
 }
+
 body {
-  background: var(--paper);
+  background-color: var(--paper);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
-  background-image: radial-gradient(
-    70% 45% at 50% -5%,
-    var(--glow),
-    transparent 70%
-  );
+  min-height: 100vh;
+  position: relative;
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -10%, var(--glow), transparent 75%),
+    radial-gradient(ellipse 60% 35% at 80% 90%, var(--gold-glow), transparent 60%);
   background-attachment: fixed;
 }
+
+/* Subtle luxury grain */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.025;
+  z-index: 999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
 ::selection {
   background: color-mix(in srgb, var(--accent) 30%, transparent);
+  color: var(--ink);
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--paper);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
 @keyframes float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-2deg);
+  0%, 100% {
+    transform: translateY(0) rotate(-1.5deg);
   }
   50% {
-    transform: translateY(-10px) rotate(1deg);
+    transform: translateY(-8px) rotate(1.5deg);
   }
 }
-.float {
-  animation: float 7s ease-in-out infinite;
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 25px -5px var(--wax-glow);
+  }
+  50% {
+    box-shadow: 0 0 45px 5px var(--wax-glow);
+  }
 }
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.wax-pulse {
+  animation: pulseGlow 4s ease-in-out infinite;
+}
+
+.gold-shimmer {
+  background: linear-gradient(90deg, var(--gold) 0%, #fff2d1 50%, var(--gold) 100%);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmer 5s linear infinite;
+}
+
+.paper-texture {
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 31px,
+    var(--line) 31px,
+    var(--line) 32px
+  );
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
@@ -67,3 +154,4 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
