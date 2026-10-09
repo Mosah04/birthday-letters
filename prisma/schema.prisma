@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id         String   @id @default(cuid())
+  providerId String   @unique
+  name       String?
+  email      String?  @unique
+  avatar     String?
+  createdAt  DateTime @default(now())
+  profile    BirthdayProfile?
+}
+
+model BirthdayProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug        String   @unique
+  displayName String
+  birthday    DateTime // instant d'ouverture (UTC), calculé selon le fuseau
+  timezone    String   @default("Europe/Paris")
+  description String?
+  createdAt   DateTime @default(now())
+  letters     Letter[]
+}
+
+model Letter {
+  id          String   @id @default(cuid())
+  profileId   String
+  profile     BirthdayProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  senderName  String
+  content     String
+  signature   String?
+  showDate    Boolean  @default(true)
+  date        DateTime?
+  anonymousId String   // hash IP+UA (anti-spam)
+  createdAt   DateTime @default(now())
+  @@index([profileId])
+  @@index([anonymousId, createdAt])
+}
