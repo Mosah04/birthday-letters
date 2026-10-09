@@ -1,10 +1,12 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-serif: var(--font-fraunces), Georgia, serif;
   --font-hand: var(--font-script), "Caveat", cursive;
   --color-paper: var(--paper);
+  --color-paper-subtle: var(--paper-subtle);
   --color-card: var(--card);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
@@ -14,8 +16,9 @@
   --color-gold: var(--gold);
 }
 
-:root {
-  color-scheme: light dark;
+:root,
+html.light {
+  color-scheme: light;
   --paper: #faf7f2;
   --paper-subtle: #f3ece2;
   --card: #ffffff;
@@ -32,7 +35,8 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light) {
+    color-scheme: dark;
     --paper: #0f0d0c;
     --paper-subtle: #171412;
     --card: #181514;
@@ -47,6 +51,23 @@
     --gold-glow: rgba(223, 178, 107, 0.3);
     --glow: rgba(229, 125, 101, 0.1);
   }
+}
+
+html.dark {
+  color-scheme: dark;
+  --paper: #0f0d0c;
+  --paper-subtle: #171412;
+  --card: #181514;
+  --ink: #f7f3ed;
+  --muted: #9c938b;
+  --line: rgba(247, 243, 237, 0.1);
+  --line-strong: rgba(247, 243, 237, 0.2);
+  --accent: #e57d65;
+  --wax: #c74b32;
+  --wax-glow: rgba(199, 75, 50, 0.35);
+  --gold: #dfb26b;
+  --gold-glow: rgba(223, 178, 107, 0.3);
+  --glow: rgba(229, 125, 101, 0.1);
 }
 
 body {

@@ -33,6 +33,11 @@ export default function LetterReader({
   const [i, setI] = useState(0);
   const [unsealedIds, setUnsealedIds] = useState<Record<string, boolean>>({});
 
+  const go = (d: number) => {
+    sounds.rustle();
+    setI((n) => Math.min(letters.length - 1, Math.max(0, n + d)));
+  };
+
   useEffect(() => {
     // Keyboard navigation
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -61,11 +66,6 @@ export default function LetterReader({
 
   const l = letters[i];
   const isUnsealed = unsealedIds[l.id] ?? false;
-
-  const go = (d: number) => {
-    sounds.rustle();
-    setI((n) => Math.min(letters.length - 1, Math.max(0, n + d)));
-  };
 
   const handleBreakSeal = (letterId: string) => {
     sounds.waxCrack();
@@ -223,11 +223,10 @@ export default function LetterReader({
                 sounds.rustle();
                 setI(idx);
               }}
-              className={`size-2.5 rounded-full transition-all ${
-                idx === i
+              className={`size-2.5 rounded-full transition-all ${idx === i
                   ? "bg-accent w-6"
                   : "bg-line hover:bg-muted"
-              }`}
+                }`}
               aria-label={`Aller à la lettre ${idx + 1}`}
             />
           ))}

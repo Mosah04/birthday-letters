@@ -106,7 +106,7 @@ export default async function Dashboard() {
                   Temps restant avant l&apos;ouverture automatique
                 </span>
                 <Countdown to={profile.birthday.toISOString()} />
-                {metas.length > 0 && (
+                {metas.length > 0 && host.includes("localhost") && (
                   <div className="mt-4 pt-3 border-t border-line/40">
                     <Link
                       href={`/${profile.slug}/letters?preview=true`}

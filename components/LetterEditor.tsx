@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Envelope from "@/components/Envelope";
 import { sounds } from "@/lib/sound";
+import Link from "next/link";
 
 type Step = "envelope" | "write" | "sealing" | "sent";
 
@@ -184,19 +185,17 @@ export default function LetterEditor({
                           setPaper(p);
                         }}
                         title={`Papier ${p}`}
-                        className={`size-4 rounded-full border transition ${
-                          p === "cream"
+                        className={`size-4 rounded-full border transition ${p === "cream"
                             ? "bg-[#ffffff]"
                             : p === "rose"
-                            ? "bg-[#ffdcd6]"
-                            : p === "parchment"
-                            ? "bg-[#f5e6cb]"
-                            : "bg-[#181a24]"
-                        } ${
-                          paper === p
+                              ? "bg-[#ffdcd6]"
+                              : p === "parchment"
+                                ? "bg-[#f5e6cb]"
+                                : "bg-[#181a24]"
+                          } ${paper === p
                             ? "ring-2 ring-accent scale-110"
                             : "opacity-70 hover:opacity-100"
-                        }`}
+                          }`}
                       />
                     )
                   )}
@@ -227,9 +226,8 @@ export default function LetterEditor({
 
               {/* Greeting */}
               <p
-                className={`text-2xl sm:text-3xl font-medium text-accent select-none ${
-                  fontStyle === "hand" ? "font-hand" : "font-serif italic"
-                }`}
+                className={`text-2xl sm:text-3xl font-medium text-accent select-none ${fontStyle === "hand" ? "font-hand" : "font-serif italic"
+                  }`}
               >
                 Cher·e {name},
               </p>
@@ -246,9 +244,8 @@ export default function LetterEditor({
                 value={f.content}
                 onChange={(e) => set("content", e.target.value)}
                 placeholder="Écris tout ce que tu n'as jamais pris le temps de dire. Tes souvenirs, tes vœux, un secret partagé..."
-                className={`mt-4 w-full resize-none bg-transparent text-xl sm:text-2xl leading-9 sm:leading-10 caret-accent outline-none placeholder:text-muted/50 paper-texture ${
-                  fontStyle === "hand" ? "font-hand" : "font-serif"
-                }`}
+                className={`mt-4 w-full resize-none bg-transparent text-xl sm:text-2xl leading-9 sm:leading-10 caret-accent outline-none placeholder:text-muted/50 paper-texture ${fontStyle === "hand" ? "font-hand" : "font-serif"
+                  }`}
               />
 
               {/* Signature Input */}
@@ -262,9 +259,8 @@ export default function LetterEditor({
                   onChange={(e) => set("signature", e.target.value)}
                   maxLength={120}
                   placeholder="Avec toute mon affection,"
-                  className={`w-full bg-transparent text-2xl sm:text-3xl text-accent outline-none placeholder:text-accent/40 ${
-                    fontStyle === "hand" ? "font-hand" : "font-serif italic"
-                  }`}
+                  className={`w-full bg-transparent text-2xl sm:text-3xl text-accent outline-none placeholder:text-accent/40 ${fontStyle === "hand" ? "font-hand" : "font-serif italic"
+                    }`}
                 />
               </div>
 
@@ -290,14 +286,12 @@ export default function LetterEditor({
                   className="flex items-center gap-2.5 text-xs text-muted hover:text-ink transition px-3 py-2 rounded-xl bg-paper/40 border border-line"
                 >
                   <span
-                    className={`relative h-5 w-9 rounded-full transition ${
-                      f.showDate ? "bg-accent" : "bg-line"
-                    }`}
+                    className={`relative h-5 w-9 rounded-full transition ${f.showDate ? "bg-accent" : "bg-line"
+                      }`}
                   >
                     <span
-                      className={`absolute top-0.5 size-4 rounded-full bg-white transition-all shadow-sm ${
-                        f.showDate ? "left-[1.1rem]" : "left-0.5"
-                      }`}
+                      className={`absolute top-0.5 size-4 rounded-full bg-white transition-all shadow-sm ${f.showDate ? "left-[1.1rem]" : "left-0.5"
+                        }`}
                     />
                   </span>
                   <CalendarDays size={14} />
@@ -382,13 +376,13 @@ export default function LetterEditor({
                 Retourner sur la capsule de {name}
               </a>
 
-              <a
+              <Link
                 href="/"
                 onClick={() => sounds.click()}
                 className="flex h-12 items-center justify-center rounded-full border border-line bg-card text-muted hover:text-ink text-sm font-medium transition"
               >
                 Créer ma propre capsule
-              </a>
+              </Link>
             </div>
           </motion.section>
         )}

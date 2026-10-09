@@ -216,7 +216,7 @@ export default async function Home() {
         <section className="mx-auto max-w-4xl px-6 py-16">
           <div className="rounded-3xl border border-gold/30 bg-gradient-to-br from-card via-card to-[var(--paper-subtle)] p-8 sm:p-14 text-center shadow-lg relative overflow-hidden">
             <div className="absolute top-0 right-0 -mt-12 -mr-12 size-48 rounded-full bg-gold/10 blur-2xl pointer-events-none" />
-            
+
             <div className="mx-auto grid size-16 place-items-center rounded-full bg-gold/15 text-gold border border-gold/30 mb-6">
               <ShieldCheck size={32} />
             </div>
@@ -233,7 +233,7 @@ export default async function Home() {
         </section>
 
         {/* TESTIMONIALS / STORIES */}
-        <section className="mx-auto max-w-5xl px-6 py-20">
+        {/* <section className="mx-auto max-w-5xl px-6 py-20">
           <div className="text-center max-w-xl mx-auto mb-16">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent block mb-2">
               Témoignages
@@ -265,7 +265,7 @@ export default async function Home() {
               </div>
             ))}
           </div>
-        </section>
+        </section> */}
 
         {/* FAQ SECTION */}
         <section className="mx-auto max-w-3xl px-6 py-20">
