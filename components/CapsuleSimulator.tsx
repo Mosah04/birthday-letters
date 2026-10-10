@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Sparkles, Check, Send, RotateCcw, Lock } from "lucide-react";
+import { Sparkles, Send, RotateCcw, Lock } from "lucide-react";
 import Envelope from "./Envelope";
 import { sounds } from "@/lib/sound";
 
@@ -108,7 +108,7 @@ export default function CapsuleSimulator() {
               <label className="block text-xs font-medium uppercase tracking-wider text-muted mb-2">
                 Teinte du sceau de cire
               </label>
-              <div className="flex gap-2.5">
+              <div className="flex flex-wrap gap-2">
                 {colors.map((c) => (
                   <button
                     key={c.id}
@@ -116,14 +116,14 @@ export default function CapsuleSimulator() {
                       sounds.click();
                       setSealColor(c.id);
                     }}
-                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                    className={`inline-flex max-w-full shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
                       sealColor === c.id
                         ? "border-ink bg-ink text-paper dark:bg-paper dark:text-ink shadow-sm"
                         : "border-line bg-paper/40 text-muted hover:border-line-strong"
                     }`}
                   >
-                    <span className={`size-3 rounded-full ${c.bg} shadow-inner`} />
-                    <span>{c.label}</span>
+                    <span className={`size-3 shrink-0 rounded-full ${c.bg} shadow-inner`} />
+                    <span className="whitespace-nowrap">{c.label}</span>
                   </button>
                 ))}
               </div>

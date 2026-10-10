@@ -1,27 +1,23 @@
 "use client";
-import { useState, useActionState, useEffect } from "react";
+import { useState, useActionState } from "react";
 import { createProfile } from "@/app/dashboard/actions";
-import { Sparkles, ArrowRight, Loader2, Calendar, Link as LinkIcon, User, MessageSquare } from "lucide-react";
+import { ArrowRight, Loader2, Calendar, Link as LinkIcon, User, MessageSquare } from "lucide-react";
 import { sounds } from "@/lib/sound";
+
+const slugFromName = (name: string) =>
+  name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 30);
 
 export default function CreateProfileForm({ defaultName }: { defaultName: string }) {
   const [err, action, pending] = useActionState(createProfile, null);
   const [name, setName] = useState(defaultName || "");
-  const [slug, setSlug] = useState("");
+  const [slug, setSlug] = useState(() => slugFromName(defaultName));
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
-
-  useEffect(() => {
-    if (!slugManuallyEdited && name) {
-      const autoSlug = name
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "")
-        .slice(0, 30);
-      setSlug(autoSlug || "mon-anniversaire");
-    }
-  }, [name, slugManuallyEdited]);
 
   const inputClass =
     "h-12 w-full rounded-xl border border-line bg-card px-4 text-sm font-medium text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/15";
@@ -41,7 +37,13 @@ export default function CreateProfileForm({ defaultName }: { defaultName: string
         <input
           name="displayName"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            const nextName = e.target.value;
+            setName(nextName);
+            if (!slugManuallyEdited && nextName) {
+              setSlug(slugFromName(nextName) || "mon-anniversaire");
+            }
+          }}
           required
           placeholder="Ex. Clara, Lucas..."
           maxLength={60}

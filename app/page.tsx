@@ -10,10 +10,8 @@ import {
   ShieldCheck,
   Sparkles,
   Heart,
-  Clock,
-  CheckCircle2,
   ChevronDown,
-  Quote,
+  CheckCircle2,
 } from "lucide-react";
 import { auth } from "@/auth";
 import Envelope from "@/components/Envelope";
@@ -48,27 +46,6 @@ const STEPS = [
     title: "Le grand frisson du jour J",
     desc: "À minuit tapante, le coffre se déverrouille. Tu découvres leurs mots, une enveloppe à la fois.",
     tag: "À minuit pile",
-  },
-];
-
-const TESTIMONIALS = [
-  {
-    quote: "J'ai passé la matinée de mes 30 ans à pleurer de joie dans mon lit en lisant les 18 lettres reçues. C'est le plus beau cadeau de ma vie.",
-    author: "Léa M.",
-    event: "Anniversaire des 30 ans",
-    city: "Lyon",
-  },
-  {
-    quote: "Mes amis d'enfance éparpillés aux quatre coins du globe m'ont écrit sans que je le sache. L'attente valait 1000 fois la peine.",
-    author: "Thomas B.",
-    event: "27 ans",
-    city: "Bruxelles",
-  },
-  {
-    quote: "La sensation de voir le compteur de lettres augmenter sans pouvoir les ouvrir est incroyablement excitante.",
-    author: "Sarah K.",
-    event: "Anniversaire surprise",
-    city: "Paris",
   },
 ];
 
@@ -107,10 +84,12 @@ export default async function Home() {
         <section className="relative overflow-hidden pt-12 pb-20 sm:pt-20 sm:pb-32 px-6">
           <div className="mx-auto max-w-4xl text-center flex flex-col items-center">
             {/* Pill Tag */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-line bg-card/80 px-4 py-1.5 text-xs font-medium text-muted shadow-sm backdrop-blur-md mb-8">
-              <span className="flex size-2 rounded-full bg-accent animate-ping" />
-              <span className="text-ink font-semibold">Le rituel des lettres scellées</span>
-              <span className="text-line-strong">·</span>
+            <div className="mb-8 flex max-w-full flex-col items-center gap-1.5 rounded-2xl border border-line bg-card/80 px-4 py-2.5 text-xs font-medium text-muted shadow-sm backdrop-blur-md sm:flex-row sm:gap-2 sm:rounded-full sm:py-1.5">
+              <span className="flex items-center gap-2">
+                <span className="size-2 shrink-0 rounded-full bg-accent animate-ping" />
+                <span className="text-ink font-semibold">Le rituel des lettres scellées</span>
+              </span>
+              <span className="hidden text-line-strong sm:inline">·</span>
               <span>Ouverture exclusive le jour J</span>
             </div>
 

@@ -8,8 +8,6 @@ import {
   Loader2,
   Send,
   Sparkles,
-  Lock,
-  Heart,
   Palette,
   Type,
 } from "lucide-react";
@@ -160,7 +158,7 @@ export default function LetterEditor({
             className="relative w-full max-w-2xl py-4"
           >
             {/* Top Toolbar */}
-            <div className="mb-4 flex items-center justify-between">
+            <div             className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <button
                 onClick={() => {
                   sounds.click();
@@ -173,11 +171,13 @@ export default function LetterEditor({
               </button>
 
               {/* Stationery options */}
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <div className="shrink-0">
+                  <ThemeToggle />
+                </div>
 
                 {/* Paper Swatches */}
-                <div className="flex items-center gap-1 bg-card/70 border border-line rounded-full px-2 py-1 shadow-sm">
+                <div className="flex shrink-0 items-center gap-1 bg-card/70 border border-line rounded-full px-2 py-1 shadow-sm">
                   <Palette size={12} className="text-muted mr-1" />
                   {(["cream", "rose", "parchment", "midnight"] as PaperTheme[]).map(
                     (p) => (
@@ -212,7 +212,7 @@ export default function LetterEditor({
                     sounds.click();
                     setFontStyle(fontStyle === "hand" ? "serif" : "hand");
                   }}
-                  className="flex items-center gap-1 bg-card/70 border border-line rounded-full px-2.5 py-1 text-xs text-muted hover:text-ink shadow-sm"
+                  className="flex shrink-0 items-center gap-1 bg-card/70 border border-line rounded-full px-2.5 py-1 text-xs text-muted hover:text-ink shadow-sm"
                 >
                   <Type size={12} />
                   <span>{fontStyle === "hand" ? "Manuscrit" : "Sérif"}</span>
@@ -277,7 +277,7 @@ export default function LetterEditor({
                   maxLength={60}
                   required
                   placeholder="Ton nom ou surnom (ex. Lucas)"
-                  className="h-12 flex-1 rounded-2xl border border-line bg-black/5 px-4 text-sm font-medium text-[color:var(--paper-writing)] outline-none placeholder:text-[color:var(--paper-muted)] focus:border-accent focus:bg-black/10 transition"
+                  className="h-14 min-w-0 flex-1 rounded-2xl border border-line bg-black/5 px-4 text-base font-medium text-[color:var(--paper-writing)] outline-none placeholder:text-[color:var(--paper-muted)] focus:border-accent focus:bg-black/10 transition sm:h-12 sm:text-sm"
                 />
 
                 <button

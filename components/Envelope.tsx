@@ -11,6 +11,13 @@ interface EnvelopeProps {
   interactive?: boolean;
 }
 
+const SEAL_ICONS = {
+  heart: Heart,
+  star: Star,
+  lock: Lock,
+  feather: Feather,
+} as const;
+
 export default function Envelope({
   className = "",
   recipientName,
@@ -51,18 +58,7 @@ export default function Envelope({
     }
   };
 
-  const IconComponent = () => {
-    switch (sealIcon) {
-      case "star":
-        return <Star size={18} fill="currentColor" />;
-      case "lock":
-        return <Lock size={16} />;
-      case "feather":
-        return <Feather size={17} />;
-      default:
-        return <Heart size={18} fill="currentColor" />;
-    }
-  };
+  const SealIcon = SEAL_ICONS[sealIcon];
 
   return (
     <div
@@ -136,7 +132,10 @@ export default function Envelope({
 
           {/* Icon */}
           <div className="relative z-10 transition-transform duration-300 group-hover:rotate-6">
-            <IconComponent />
+            <SealIcon
+              size={sealIcon === "lock" ? 16 : sealIcon === "feather" ? 17 : 18}
+              fill={sealIcon === "heart" || sealIcon === "star" ? "currentColor" : "none"}
+            />
           </div>
         </div>
 

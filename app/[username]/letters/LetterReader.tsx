@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ChevronLeft,
@@ -33,10 +33,10 @@ export default function LetterReader({
   const [i, setI] = useState(0);
   const [unsealedIds, setUnsealedIds] = useState<Record<string, boolean>>({});
 
-  const go = (d: number) => {
+  const go = useCallback((d: number) => {
     sounds.rustle();
     setI((n) => Math.min(letters.length - 1, Math.max(0, n + d)));
-  };
+  }, [letters.length]);
 
   useEffect(() => {
     // Keyboard navigation
@@ -46,7 +46,7 @@ export default function LetterReader({
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [i, letters.length]);
+  }, [go]);
 
   if (!letters.length) {
     return (

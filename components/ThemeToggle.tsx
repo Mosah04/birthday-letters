@@ -1,41 +1,60 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { Sun, Moon } from "lucide-react";
 import { sounds } from "@/lib/sound";
 
+type Theme = "light" | "dark";
+
+const listeners = new Set<() => void>();
+
+const getTheme = (): Theme => {
+  const saved = localStorage.getItem("bl_theme");
+  if (saved === "light" || saved === "dark") return saved;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+};
+
+const applyTheme = (theme: Theme) => {
+  document.documentElement.classList.remove("light", "dark");
+  document.documentElement.classList.add(theme);
+};
+
+const notifyThemeChange = () => {
+  listeners.forEach((listener) => listener());
+};
+
+const subscribeToTheme = (onChange: () => void) => {
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key === "bl_theme") notifyThemeChange();
+  };
+  listeners.add(onChange);
+  media.addEventListener("change", onChange);
+  window.addEventListener("storage", handleStorage);
+  return () => {
+    listeners.delete(onChange);
+    media.removeEventListener("change", onChange);
+    window.removeEventListener("storage", handleStorage);
+  };
+};
+
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [mounted, setMounted] = useState(false);
+  const theme = useSyncExternalStore<Theme>(
+    subscribeToTheme,
+    getTheme,
+    () => "light"
+  );
 
   useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem("bl_theme") as "light" | "dark" | null;
-    if (saved) {
-      setTheme(saved);
-      document.documentElement.classList.remove("light", "dark");
-      document.documentElement.classList.add(saved);
-    } else {
-      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      setTheme(isDark ? "dark" : "light");
-      document.documentElement.classList.remove("light", "dark");
-      document.documentElement.classList.add(isDark ? "dark" : "light");
-    }
-  }, []);
+    applyTheme(theme);
+  }, [theme]);
 
   const toggleTheme = () => {
     sounds.click();
     const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
     localStorage.setItem("bl_theme", nextTheme);
-    document.documentElement.classList.remove("light", "dark");
-    document.documentElement.classList.add(nextTheme);
+    applyTheme(nextTheme);
+    notifyThemeChange();
   };
-
-  if (!mounted) {
-    return (
-      <div className="size-9 rounded-full border border-line bg-card/60" aria-hidden />
-    );
-  }
 
   return (
     <button

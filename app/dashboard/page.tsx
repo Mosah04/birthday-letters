@@ -15,7 +15,6 @@ import {
   Eye,
   LogOut,
   Gift,
-  CheckCircle2,
 } from "lucide-react";
 import Countdown from "@/components/Countdown";
 import SharePanel from "@/components/SharePanel";
@@ -162,12 +161,12 @@ export default async function Dashboard() {
           </div>
 
           {/* Quick Action Navigation Toolbar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl border border-line bg-card/60 backdrop-blur-sm text-xs">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-3 rounded-2xl border border-line bg-card/60 p-4 text-xs backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
               <Link
                 href={`/${profile.slug}`}
                 target="_blank"
-                className="inline-flex items-center gap-1.5 rounded-full border border-line px-3.5 py-1.5 font-medium hover:border-line-strong transition"
+                className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-center font-medium transition hover:border-line-strong sm:min-h-0 sm:justify-start sm:py-1.5"
               >
                 <Eye size={13} className="text-accent" />
                 <span>Voir ma page publique</span>
@@ -176,7 +175,7 @@ export default async function Dashboard() {
               <Link
                 href={`/${profile.slug}/write`}
                 target="_blank"
-                className="inline-flex items-center gap-1.5 rounded-full border border-line px-3.5 py-1.5 font-medium hover:border-line-strong transition"
+                className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-center font-medium transition hover:border-line-strong sm:min-h-0 sm:justify-start sm:py-1.5"
               >
                 <PenLine size={13} className="text-gold" />
                 <span>Tester l&apos;écriture</span>
@@ -191,7 +190,7 @@ export default async function Dashboard() {
             >
               <button
                 type="submit"
-                className="inline-flex items-center gap-1.5 text-muted hover:text-red-500 transition px-2 py-1"
+                className="inline-flex min-h-10 items-center justify-center gap-1.5 px-2 py-1 text-muted transition hover:text-red-500 sm:min-h-0"
               >
                 <LogOut size={13} />
                 <span>Déconnexion</span>

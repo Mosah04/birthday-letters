@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import NextImage from "next/image";
 import { prisma } from "@/lib/prisma";
 import { publicState } from "@/lib/lock";
-import { PenLine, Lock, Sparkles, Heart, Gift, ArrowRight } from "lucide-react";
+import { PenLine, Lock, Sparkles, Gift, ArrowRight } from "lucide-react";
 import Countdown from "@/components/Countdown";
 import Envelope from "@/components/Envelope";
 import NavHeader from "@/components/NavHeader";
@@ -84,10 +85,13 @@ export default async function PublicPage({
           {/* Avatar / Recipient Badge */}
           <div className="flex flex-col items-center">
             {p.user.avatar ? (
-              <img
+              <NextImage
                 src={p.user.avatar}
                 alt={p.displayName}
-                className="size-24 rounded-full object-cover ring-4 ring-card shadow-lg mb-4 border border-line"
+                width={96}
+                height={96}
+                unoptimized
+                className="mb-4 size-24 rounded-full border border-line object-cover shadow-lg ring-4 ring-card"
               />
             ) : (
               <div className="grid size-20 place-items-center rounded-full bg-accent/10 border border-accent/25 text-accent text-2xl font-serif font-bold shadow-md mb-4">
