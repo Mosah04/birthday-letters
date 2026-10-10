@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Mail, Volume2, VolumeX, Sparkles, User, ArrowRight } from "lucide-react";
 import { sounds } from "@/lib/sound";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface NavHeaderProps {
   user?: {
@@ -45,6 +46,8 @@ export default function NavHeader({ user }: NavHeaderProps) {
 
         {/* Right Actions */}
         <div className="flex items-center gap-3">
+          <ThemeToggle />
+
           {/* Sound Toggle */}
           <button
             onClick={toggleSound}

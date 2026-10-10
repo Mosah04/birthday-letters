@@ -16,6 +16,7 @@ import {
 import Envelope from "@/components/Envelope";
 import { sounds } from "@/lib/sound";
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type Step = "envelope" | "write" | "sealing" | "sent";
 
@@ -102,13 +103,13 @@ export default function LetterEditor({
   const getPaperBg = () => {
     switch (paper) {
       case "rose":
-        return "bg-[#fffaf8] border-[#f2ded9]";
+        return "bg-[#fffaf8] border-[#f2ded9] [--paper-writing:#30211e] [--paper-accent:#a84331] [--paper-muted:#79635d]";
       case "parchment":
-        return "bg-[#fbf5e8] border-[#e8dbc0]";
+        return "bg-[#fbf5e8] border-[#e8dbc0] [--paper-writing:#352b1d] [--paper-accent:#8b5a1c] [--paper-muted:#786b58]";
       case "midnight":
-        return "bg-[#181a24] text-[#edeef5] border-[#292d3f]";
-      default:
-        return "bg-card border-line";
+        return "bg-[#181a24] border-[#292d3f] [--paper-writing:#edeef5] [--paper-accent:#e57d65] [--paper-muted:#a9a4b3]";
+      case "cream":
+        return "bg-card border-line [--paper-writing:var(--ink)] [--paper-accent:var(--accent)] [--paper-muted:var(--muted)]";
     }
   };
 
@@ -173,6 +174,8 @@ export default function LetterEditor({
 
               {/* Stationery options */}
               <div className="flex items-center gap-3">
+                <ThemeToggle />
+
                 {/* Paper Swatches */}
                 <div className="flex items-center gap-1 bg-card/70 border border-line rounded-full px-2 py-1 shadow-sm">
                   <Palette size={12} className="text-muted mr-1" />
@@ -185,6 +188,8 @@ export default function LetterEditor({
                           setPaper(p);
                         }}
                         title={`Papier ${p}`}
+                        aria-label={`Papier ${p}`}
+                        aria-pressed={paper === p}
                         className={`size-4 rounded-full border transition ${p === "cream"
                             ? "bg-[#ffffff]"
                             : p === "rose"
@@ -226,7 +231,7 @@ export default function LetterEditor({
 
               {/* Greeting */}
               <p
-                className={`text-2xl sm:text-3xl font-medium text-accent select-none ${fontStyle === "hand" ? "font-hand" : "font-serif italic"
+                className={`text-2xl sm:text-3xl font-medium text-[color:var(--paper-accent)] select-none ${fontStyle === "hand" ? "font-hand" : "font-serif italic"
                   }`}
               >
                 Cher·e {name},
@@ -244,7 +249,7 @@ export default function LetterEditor({
                 value={f.content}
                 onChange={(e) => set("content", e.target.value)}
                 placeholder="Écris tout ce que tu n'as jamais pris le temps de dire. Tes souvenirs, tes vœux, un secret partagé..."
-                className={`mt-4 w-full resize-none bg-transparent text-xl sm:text-2xl leading-9 sm:leading-10 caret-accent outline-none placeholder:text-muted/50 paper-texture ${fontStyle === "hand" ? "font-hand" : "font-serif"
+                className={`mt-4 w-full resize-none bg-transparent text-[color:var(--paper-writing)] text-xl sm:text-2xl leading-9 sm:leading-10 caret-accent outline-none placeholder:text-[color:var(--paper-muted)] paper-texture ${fontStyle === "hand" ? "font-hand" : "font-serif"
                   }`}
               />
 
@@ -259,7 +264,7 @@ export default function LetterEditor({
                   onChange={(e) => set("signature", e.target.value)}
                   maxLength={120}
                   placeholder="Avec toute mon affection,"
-                  className={`w-full bg-transparent text-2xl sm:text-3xl text-accent outline-none placeholder:text-accent/40 ${fontStyle === "hand" ? "font-hand" : "font-serif italic"
+                  className={`w-full bg-transparent text-[color:var(--paper-accent)] text-2xl sm:text-3xl outline-none placeholder:text-[color:var(--paper-muted)] ${fontStyle === "hand" ? "font-hand" : "font-serif italic"
                     }`}
                 />
               </div>
@@ -272,7 +277,7 @@ export default function LetterEditor({
                   maxLength={60}
                   required
                   placeholder="Ton nom ou surnom (ex. Lucas)"
-                  className="h-12 flex-1 rounded-2xl border border-line bg-paper/70 px-4 text-sm font-medium outline-none focus:border-accent focus:bg-paper transition"
+                  className="h-12 flex-1 rounded-2xl border border-line bg-black/5 px-4 text-sm font-medium text-[color:var(--paper-writing)] outline-none placeholder:text-[color:var(--paper-muted)] focus:border-accent focus:bg-black/10 transition"
                 />
 
                 <button

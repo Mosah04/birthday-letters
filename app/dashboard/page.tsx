@@ -260,7 +260,10 @@ export default async function Dashboard() {
           </div>
 
           {/* Share Studio */}
-          <SharePanel url={`${base}/${profile.slug}`} />
+          <SharePanel
+            url={`${base}/${profile.slug}`}
+            recipientName={profile.displayName}
+          />
         </div>
       </main>
     </div>
