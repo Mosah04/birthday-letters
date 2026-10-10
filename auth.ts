@@ -18,8 +18,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         const rawName = (credentials?.name as string)?.trim() || "Clara";
-        const cleanSlug = rawName.toLowerCase().replace(/[^a-z0-9]/g, "") || "demo";
-        const email = (credentials?.email as string)?.trim() || `${cleanSlug}@birthdayletters.com`;
+        const cleanSlug =
+          rawName.toLowerCase().replace(/[^a-z0-9]/g, "") || "demo";
+        const email =
+          (credentials?.email as string)?.trim() ||
+          `${cleanSlug}@birthdayletters.com`;
         const providerId = `demo-${cleanSlug}`;
 
         const u = await prisma.user.upsert({
@@ -44,6 +47,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user, account, profile }) {
+      const currentVersion = process.env?.AUTH_CURRENT_VERSION ?? "2";
       if (account?.provider === "google" && profile) {
         const providerId = account.providerAccountId;
         const existingUser = await prisma.user.findUnique({
@@ -57,7 +61,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               providerId,
               name: profile.name,
               email: profile.email,
-              avatar: (profile.picture as string | undefined) ?? (profile.avatar_url as string | undefined),
+              avatar:
+                (profile.picture as string | undefined) ??
+                (profile.avatar_url as string | undefined),
             },
             select: { id: true },
           }));
@@ -65,6 +71,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       } else if (user) {
         token.uid = user.id;
       }
+      if (user) token.sessionVersion = currentVersion;
+      if (token.sessionVersion !== currentVersion) return null;
       return token;
     },
     session: ({ session, token }) => ({
