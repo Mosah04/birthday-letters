@@ -44,23 +44,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user, account, profile }) {
-      if (user) {
-        token.uid = user.id;
-      } else if (account && profile) {
-        const u = await prisma.user.upsert({
-          where: { providerId: account.providerAccountId },
-          update: {
-            name: profile.name,
-            avatar: (profile.picture as string | undefined) ?? (profile.avatar_url as string | undefined),
-          },
-          create: {
-            providerId: account.providerAccountId,
-            name: profile.name,
-            email: profile.email,
-            avatar: (profile.picture as string | undefined) ?? (profile.avatar_url as string | undefined),
-          },
+      if (account?.provider === "google" && profile) {
+        const providerId = account.providerAccountId;
+        const existingUser = await prisma.user.findUnique({
+          where: { providerId },
+          select: { id: true },
         });
-        token.uid = u.id;
+        const dbUser =
+          existingUser ??
+          (await prisma.user.create({
+            data: {
+              providerId,
+              name: profile.name,
+              email: profile.email,
+              avatar: (profile.picture as string | undefined) ?? (profile.avatar_url as string | undefined),
+            },
+            select: { id: true },
+          }));
+        token.uid = dbUser.id;
+      } else if (user) {
+        token.uid = user.id;
       }
       return token;
     },
@@ -70,4 +73,3 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   },
 });
-
